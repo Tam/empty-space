@@ -6,7 +6,7 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CompositeAlphaMode, PresentMode};
 use crate::camera::CameraPlugin;
-use crate::gfx::GfxPlugin;
+use crate::gfx::{GfxPlugin, Parallax};
 use crate::player::PlayerPlugin;
 
 #[derive(Resource, Default)]
@@ -50,6 +50,7 @@ fn main() {
 }
 
 pub fn core_setup(
+	mut commands : Commands,
 	assets_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 	mut tilesheet: ResMut<Tilesheet>,
@@ -66,6 +67,36 @@ pub fn core_setup(
 	);
 	let texture_atlas_handle = texture_atlases.add(texture_atlas);
 	tilesheet.0 = texture_atlas_handle.clone();
+	
+	// TODO: completely tinted, sharpened (?), sprite shader
+	commands.spawn((
+		SpriteSheetBundle {
+			texture_atlas: tilesheet.0.clone(),
+			sprite: TextureAtlasSprite {
+				index: 23,
+				color: Color::hex("#232427").unwrap(),
+				..default()
+			},
+			transform: Transform::from_scale(Vec3::splat(10.)),
+			..default()
+		},
+		Parallax(-2),
+	));
+	
+	// TODO: Add sprite blur
+	commands.spawn((
+		SpriteSheetBundle {
+			texture_atlas: tilesheet.0.clone(),
+			sprite: TextureAtlasSprite {
+				index: 25,
+				..default()
+			},
+			transform: Transform::from_scale(Vec3::splat(2.))
+				.with_translation(Vec3::new(0., 0., 2.)),
+			..default()
+		},
+		Parallax(2),
+	));
 }
 
 #[cfg(not(target_arch = "wasm32"))]

@@ -51,7 +51,7 @@ fn player_movement(
 	if input.pressed(KeyCode::D) { *rotation_factor = -1.; }
 	
 	// Thrust
-	if input.pressed(KeyCode::W) { *movement_factor = 1.; }
+	if input.pressed(KeyCode::W) { *movement_factor =  1.; }
 	
 	// Transform
 	t.rotate_z(*rotation_factor * player.turn_speed * time.delta_seconds());
@@ -60,6 +60,6 @@ fn player_movement(
 	t.translation += move_dir * move_dist;
 	
 	// Decay
-	*rotation_factor *= 0.9;
-	*movement_factor *= 0.7;
+	*rotation_factor *= 0.4;
+	*movement_factor *= 0.9;
 }

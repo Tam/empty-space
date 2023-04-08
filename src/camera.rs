@@ -27,9 +27,9 @@ fn follow_player (
 	let player_t = player_query.single();
 	let mut camera_t = camera_query.single_mut();
 	
-	camera_t.translation = Vec3::lerp(
-		camera_t.translation,
-		player_t.translation,
+	camera_t.translation = Vec2::lerp(
+		camera_t.translation.truncate(),
+		player_t.translation.truncate(),
 		time.delta_seconds() * 10.,
-	);
+	).extend(camera_t.translation.z);
 }
