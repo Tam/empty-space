@@ -1,13 +1,16 @@
 mod gfx;
 mod player;
 mod camera;
+mod movement;
 
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CompositeAlphaMode, PresentMode};
 use crate::camera::CameraPlugin;
 use crate::gfx::{GfxPlugin, Parallax};
+use crate::movement::MovementPlugin;
 use crate::player::PlayerPlugin;
+pub use movement::Movement;
 
 #[derive(Resource, Default)]
 pub struct Tilesheet (Handle<TextureAtlas>);
@@ -39,6 +42,7 @@ fn main() {
 		}))
 		.add_plugin(GfxPlugin)
 		.add_plugin(CameraPlugin)
+		.add_plugin(MovementPlugin)
 		.add_plugin(PlayerPlugin)
 		.add_startup_system(core_setup)
 	;
