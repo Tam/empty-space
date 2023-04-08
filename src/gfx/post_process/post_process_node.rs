@@ -3,7 +3,7 @@ use bevy::render::render_graph::{Node, NodeRunError, RenderGraphContext, SlotInf
 use bevy::render::render_resource::{BindGroupDescriptor, BindGroupEntry, BindingResource, Operations, PipelineCache, RenderPassColorAttachment, RenderPassDescriptor};
 use bevy::render::renderer::{RenderContext};
 use bevy::render::view::{ExtractedView, ViewTarget};
-use crate::vfx::post_process::post_process_pipeline::PostProcessPipeline;
+use crate::gfx::post_process::post_process_pipeline::PostProcessPipeline;
 
 /// The post process node used for the render graph
 pub struct PostProcessNode {

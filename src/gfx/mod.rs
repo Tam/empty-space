@@ -1,12 +1,12 @@
 use bevy::app::App;
 use bevy::prelude::Plugin;
-use crate::vfx::post_process::PostProcessPlugin;
+use crate::gfx::post_process::PostProcessPlugin;
 
 mod post_process;
 
-pub struct VfxPlugin;
+pub struct GfxPlugin;
 
-impl Plugin for VfxPlugin {
+impl Plugin for GfxPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			.add_plugin(PostProcessPlugin)

@@ -6,8 +6,8 @@ use bevy::core_pipeline::core_2d;
 use bevy::prelude::Plugin;
 use bevy::render::render_graph::RenderGraph;
 use bevy::render::RenderApp;
-use crate::vfx::post_process::post_process_node::PostProcessNode;
-use crate::vfx::post_process::post_process_pipeline::PostProcessPipeline;
+use crate::gfx::post_process::post_process_node::PostProcessNode;
+use crate::gfx::post_process::post_process_pipeline::PostProcessPipeline;
 
 pub struct PostProcessPlugin;
 

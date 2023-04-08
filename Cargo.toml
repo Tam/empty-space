@@ -17,14 +17,13 @@ features = [
     "bevy_sprite", 			# 2D (sprites) rendering
 
     "png",                  # PNG Assets
-
-    "filesystem_watcher",   # Watch files for asset hot-reloading
-    "dynamic_linking",      # Faster recompiles
 ]
 
 [features]
 debug = [
     "bevy/dynamic_linking",    # Faster recompiles
+]
+debug_watch = [
     "bevy/filesystem_watcher", # Watch files for asset hot-reloading
 ]
 

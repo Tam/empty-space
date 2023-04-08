@@ -52,18 +52,19 @@ fn fragment (
 
 	// Ring Thin
 	if ((c - 0.245) * (c - 0.24) <= 0.) {
-		return tweak_saturation(vec4<f32>(0.192, 0.196, 0.212, 1.), 0.158);
+		return tweak_saturation(vec4<f32>(0.192, 0.196, 0.212, 1.), 0.1);
 	}
 
 	// Ring Thick
 	if ((c - 0.235) * (c - 0.226) <= 0.) {
-		return tweak_saturation(vec4<f32>(0.384, 0.38, 0.408, 1.), 0.158);
+		return tweak_saturation(vec4<f32>(0.384, 0.38, 0.408, 1.), 0.1);
 	}
 
 	// Ring BG
+	let bg = tweak_saturation(vec4<f32>(0.09, 0.098, 0.11, 1.), 0.1);
 	if (c > 0.22) {
-		return tweak_saturation(vec4<f32>(0.09, 0.098, 0.11, 1.), 0.158);
+		return bg;
 	}
 
-	return base_color;
+	return base_color + bg;
 }
