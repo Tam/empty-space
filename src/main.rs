@@ -89,6 +89,7 @@ pub fn core_setup(
 			texture_atlas: tilesheet.0.clone(),
 			sprite: TextureAtlasSprite {
 				index: 25,
+				color: Color::hex("#74748c").unwrap().with_a(0.5),
 				..default()
 			},
 			transform: Transform::from_scale(Vec3::splat(2.))
@@ -96,6 +97,20 @@ pub fn core_setup(
 			..default()
 		},
 		Parallax(2),
+	));
+	commands.spawn((
+		SpriteSheetBundle {
+			texture_atlas: tilesheet.0.clone(),
+			sprite: TextureAtlasSprite {
+				index: 26,
+				color: Color::hex("#74748c").unwrap().with_a(0.5),
+				..default()
+			},
+			transform: Transform::from_scale(Vec3::splat(1.))
+				.with_translation(Vec3::new(100., 100., 2.)),
+			..default()
+		},
+		Parallax(1),
 	));
 }
 
