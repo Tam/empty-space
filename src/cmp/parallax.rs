@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::MainCamera;
 
 #[derive(Component)]
 pub struct Parallax (pub isize);
@@ -7,8 +8,8 @@ const LAYER_MOVE_SPEED_SLOW : f32 = 0.1;
 const LAYER_MOVE_SPEED_FAST : f32 = -0.5;
 
 pub fn parallax (
-	camera_query : Query<&Transform, (With<Camera2d>, Without<Parallax>)>,
-	mut entity_query : Query<(&mut Transform, &Parallax), Without<Camera2d>>,
+	camera_query : Query<&Transform, (With<MainCamera>, Without<Parallax>)>,
+	mut entity_query : Query<(&mut Transform, &Parallax), Without<MainCamera>>,
 	mut prev_camera_t : Local<Vec2>,
 ) {
 	let camera_t = camera_query.single().translation.truncate();

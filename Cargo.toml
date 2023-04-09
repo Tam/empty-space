@@ -16,6 +16,10 @@ features = [
     "bevy_core_pipeline", 	# Common rendering abstractions
     "bevy_sprite", 			# 2D (sprites) rendering
 
+    "bevy_ui",              # UI framework
+    "bevy_text",            # Provides text functionality
+    "subpixel_glyph_atlas", # Render font glyphs using subpixel accuracy
+
     "png",                  # PNG Assets
 ]
 

@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use crate::Tilesheet;
 use crate::cmp::Movement;
 
 #[derive(Component)]
@@ -8,9 +7,9 @@ pub struct Player;
 #[derive(Component)]
 pub struct PlayerThruster;
 
-pub fn setup_player (
+pub fn setup(
 	commands : &mut ChildBuilder,
-	tilesheet : Res<Tilesheet>,
+	tilesheet : Handle<TextureAtlas>,
 ) {
 	commands.spawn((
 		Player,
@@ -29,7 +28,7 @@ pub fn setup_player (
 		// Thruster
 		commands.spawn((
 			SpriteSheetBundle {
-				texture_atlas: tilesheet.0.clone(),
+				texture_atlas: tilesheet.clone(),
 				sprite: TextureAtlasSprite {
 					index: 47,
 					color: Color::WHITE.with_a(0.75),
@@ -37,7 +36,7 @@ pub fn setup_player (
 				},
 				visibility: Visibility::Hidden,
 				transform: Transform::from_scale(Vec3::new(0.2, 0.25, 1.))
-					.with_translation(Vec3::new(0., -25., 0.)),
+					.with_translation(Vec3::new(0., -10., 0.)),
 				..default()
 			},
 			PlayerThruster,
@@ -46,16 +45,18 @@ pub fn setup_player (
 		// Ship
 		commands.spawn((
 			SpriteSheetBundle {
-				texture_atlas: tilesheet.0.clone(),
+				texture_atlas: tilesheet.clone(),
 				sprite: TextureAtlasSprite::new(1),
-				transform: Transform::from_scale(Vec3::new(0.5, 0.5, 1.)),
+				transform: Transform::from_scale(Vec3::new(0.5, 0.5, 1.))
+					.with_translation(Vec3::new(0., 8., 1.)),
 				..default()
 			},
 		));
 	});
 }
 
-pub fn player_movement(
+// TODO: extract thruster visibility to own generic system
+pub fn movement(
 	mut query: Query<&mut Movement, With<Player>>,
 	mut thruster_query : Query<&mut Visibility, With<PlayerThruster>>,
 	input: Res<Input<KeyCode>>,

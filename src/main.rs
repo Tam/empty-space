@@ -1,13 +1,10 @@
 mod gfx;
-mod player;
-mod camera;
 mod cmp;
 mod scn;
 
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CompositeAlphaMode, PresentMode};
-use crate::camera::CameraPlugin;
 use crate::cmp::CmpPlugin;
 use crate::gfx::GfxPlugin;
 use crate::scn::ScnPlugin;
@@ -22,6 +19,9 @@ pub enum AppState {
 
 #[derive(Resource, Default)]
 pub struct Tilesheet (Handle<TextureAtlas>);
+
+#[derive(Component)]
+pub struct MainCamera;
 
 fn main() {
 	let mut app = App::new();
@@ -52,7 +52,6 @@ fn main() {
 		.add_plugin(GfxPlugin)
 		.add_plugin(CmpPlugin)
 		.add_plugin(ScnPlugin)
-		.add_plugin(CameraPlugin)
 		.add_startup_system(core_setup)
 	;
 	
@@ -66,10 +65,16 @@ fn main() {
 }
 
 pub fn core_setup(
+	mut commands: Commands,
 	assets_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 	mut tilesheet: ResMut<Tilesheet>,
 ) {
+	commands.spawn((
+		Camera2dBundle::default(),
+		MainCamera,
+	));
+	
 	// Load texture
 	let texture_handle = assets_server.load("tilesheet.png");
 	let texture_atlas = TextureAtlas::from_grid(
