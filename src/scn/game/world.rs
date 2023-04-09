@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::cmp::{Parallax, Spin};
+use crate::cmp::{Parallax, Spin, Tracker, TrackerType};
 
 pub fn setup (
 	commands : &mut ChildBuilder,
@@ -49,5 +49,18 @@ pub fn setup (
 			..default()
 		},
 		Parallax(1),
+	));
+	
+	commands.spawn((
+		SpriteSheetBundle {
+			texture_atlas: tilesheet.clone(),
+			sprite: TextureAtlasSprite {
+				index: 24,
+				..default()
+			},
+			transform: Transform::from_xyz(-600., 230., 0.),
+			..default()
+		},
+		Tracker(TrackerType::Resource),
 	));
 }

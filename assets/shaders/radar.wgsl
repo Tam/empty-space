@@ -1,7 +1,12 @@
 #import bevy_sprite::mesh2d_view_bindings
 
 const PI: f32 = 3.141592653589793;
-const TINT : vec3<f32> = vec3<f32>(0.12941176, 0.16862745, 0.21176471);
+
+struct RadarMaterial {
+	tint: vec4<f32>,
+}
+@group(1) @binding(0)
+var<uniform> material : RadarMaterial;
 
 struct FragmentInput {
 	#import bevy_sprite::mesh2d_vertex_output
@@ -23,7 +28,7 @@ fn fragment (in: FragmentInput) -> @location(0) vec4<f32> {
 	a = (a + PI) / (2. * PI);  // [0, 1]
 	a = f_mod(globals.time * 0.5 - a, 1.);
 	let r = 1. - length(st);
-	color = max(color, vec3<f32>(a * r)) * TINT * 0.5;
+	color = max(color, vec3<f32>(a * r)) * material.tint.rgb * 0.5;
 
 	// Lines
 	for (var i = 0; i < 4; i++) {
@@ -33,13 +38,7 @@ fn fragment (in: FragmentInput) -> @location(0) vec4<f32> {
 		l = sharpen(l, 0.003, view.viewport.zw);
 		m += l;
 	}
-	color = max(vec3(m) * TINT * 0.5, color);
-
-	// Blips
-	let blip = st * 30. - vec2(-8., -4.);
-	let r_blip = length(blip);
-	let circle = smoothstep(a, a + 0.7, r_blip) - smoothstep(a + 0.35, a + 0.9, r_blip);
-	color = max(color, vec3(circle) * vec3(1., 0., 0.));
+	color = max(vec3(m) * material.tint.rgb * 0.5, color);
 
 	return vec4<f32>(color, 1.);
 }

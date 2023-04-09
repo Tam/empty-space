@@ -4,15 +4,21 @@ use bevy::render::camera::RenderTarget;
 use bevy::render::render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages};
 use bevy::render::view::RenderLayers;
 use bevy::sprite::MaterialMesh2dBundle;
-use crate::AppState;
+use bevy::utils::HashMap;
+use crate::{AppState, Tilesheet};
+use crate::cmp::{Tracker, TrackerType};
 use crate::gfx::RadarMaterial;
 use crate::scn::game::GameState;
+use crate::scn::game::player::Player;
 
 #[derive(Component)]
 struct RadarRoot;
 
 #[derive(Component)]
 struct RadarUIRoot;
+
+#[derive(Component, Eq, PartialEq, Hash)]
+struct TrackerIcon (pub u32);
 
 pub struct RadarPlugin;
 impl Plugin for RadarPlugin {
@@ -22,6 +28,8 @@ impl Plugin for RadarPlugin {
 			.add_system(teardown.in_schedule(OnExit(AppState::Game)))
 			.add_system(show.in_schedule(OnEnter(GameState::Radar)))
 			.add_system(hide.in_schedule(OnExit(GameState::Radar)))
+			.add_system(show_tracker_icons.in_set(OnUpdate(GameState::Radar)))
+			.add_system(remove_tracker_icons.in_base_set(CoreSet::PostUpdate))
 		;
 	}
 }
@@ -66,7 +74,9 @@ fn setup (
 		commands.spawn((
 			MaterialMesh2dBundle {
 				mesh: meshes.add(shape::Quad::new(Vec2::splat(1440.)).into()).into(),
-				material: materials.add(RadarMaterial {}),
+				material: materials.add(RadarMaterial {
+					tint: Color::hex("#353639").unwrap(),
+				}),
 				..default()
 			},
 			radar_render_layer,
@@ -123,4 +133,66 @@ fn hide (
 	mut query: Query<&mut Visibility, With<RadarUIRoot>>,
 ) {
 	*query.single_mut() = Visibility::Hidden;
+}
+
+fn show_tracker_icons (
+	mut commands : Commands,
+	radar_query: Query<Entity, (With<RadarRoot>, Without<Player>)>,
+	tracker_query: Query<(Entity, &Transform, &Tracker), (Without<Player>, Without<TrackerIcon>)>,
+	mut icon_query: Query<(&TrackerIcon, &mut Transform), Without<Player>>,
+	player_query: Query<&Transform, With<Player>>,
+	tilesheet : Res<Tilesheet>,
+) {
+	let player_t = player_query.single();
+	let radar = radar_query.single();
+	let radar_render_layer = RenderLayers::layer(1);
+	let mut existing_icons : HashMap<_, _> = icon_query
+		.iter_mut()
+		.map(|(i, t)| (i.0, t))
+		.collect();
+	
+	for (entity, transform, tracker) in &tracker_query {
+		let id = entity.index();
+		let t = ((transform.translation - player_t.translation) * 0.3).truncate().extend(1.);
+		
+		if existing_icons.contains_key(&id) {
+			let icon_t = existing_icons.get_mut(&id).unwrap();
+			icon_t.translation = t;
+		} else {
+			let tint = match tracker.0 {
+				TrackerType::Resource => Color::BISQUE,
+				TrackerType::Enemy => Color::RED,
+			};
+			
+			commands.spawn((
+				TrackerIcon(id),
+				SpriteSheetBundle {
+					texture_atlas: tilesheet.0.clone(),
+					sprite: TextureAtlasSprite {
+						index: 28,
+						color: tint,
+						..default()
+					},
+					transform: Transform::from_xyz(t.x, t.y, 1.),
+					..default()
+				},
+				radar_render_layer,
+			)).set_parent(radar);
+		}
+	}
+}
+
+fn remove_tracker_icons (
+	mut commands : Commands,
+	mut removed: RemovedComponents<Tracker>,
+	query: Query<(Entity, &TrackerIcon)>,
+) {
+	let icons : HashMap<_, _> = query
+		.iter()
+		.map(|(e, t)| (t.0, e))
+		.collect();
+	
+	for entity in &mut removed {
+		commands.entity(icons[&entity.index()]).despawn_recursive();
+	}
 }
