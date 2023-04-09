@@ -6,16 +6,7 @@ pub struct Parallax (pub isize);
 const LAYER_MOVE_SPEED_SLOW : f32 = 0.1;
 const LAYER_MOVE_SPEED_FAST : f32 = -0.5;
 
-pub struct ParallaxPlugin;
-impl Plugin for ParallaxPlugin {
-	fn build(&self, app: &mut App) {
-		app
-			.add_system(parallax_offset)
-		;
-	}
-}
-
-fn parallax_offset (
+pub fn parallax_offset (
 	camera_query : Query<&Transform, (With<Camera2d>, Without<Parallax>)>,
 	mut entity_query : Query<(&mut Transform, &Parallax), Without<Camera2d>>,
 	mut prev_camera_t : Local<Vec2>,

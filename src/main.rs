@@ -7,7 +7,7 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CompositeAlphaMode, PresentMode};
 use crate::camera::CameraPlugin;
-use crate::gfx::{GfxPlugin, Parallax};
+use crate::gfx::{GfxPlugin, Parallax, Spin};
 use crate::movement::MovementPlugin;
 use crate::player::PlayerPlugin;
 pub use movement::Movement;
@@ -85,6 +85,7 @@ pub fn core_setup(
 			..default()
 		},
 		Parallax(-2),
+		Spin(2.),
 	));
 	
 	// TODO: Add sprite blur
