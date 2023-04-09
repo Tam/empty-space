@@ -34,8 +34,8 @@ fn setup (
 ) {
 	// Radar renderer
 	let size = Extent3d {
-		height: 720,
-		width: 720,
+		height: 1440,
+		width: 1440,
 		..default()
 	};
 	
@@ -65,7 +65,7 @@ fn setup (
 	)).with_children(|commands| {
 		commands.spawn((
 			MaterialMesh2dBundle {
-				mesh: meshes.add(shape::Quad::new(Vec2::splat(720.)).into()).into(),
+				mesh: meshes.add(shape::Quad::new(Vec2::splat(1440.)).into()).into(),
 				material: materials.add(RadarMaterial {}),
 				..default()
 			},
@@ -82,12 +82,14 @@ fn setup (
 				},
 				..default()
 			},
+			UiCameraConfig {
+				show_ui: false,
+			},
 			radar_render_layer,
 		));
 	});
 	
 	// UI
-	// FIXME: Image bundle not re-rendering on every frame :(
 	commands.spawn((
 		RadarUIRoot,
 		ImageBundle {
