@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use crate::{core_setup, Movement, Tilesheet};
+use crate::Tilesheet;
+use crate::cmp::Movement;
 
 #[derive(Component)]
 pub struct Player;
@@ -7,28 +8,11 @@ pub struct Player;
 #[derive(Component)]
 pub struct PlayerThruster;
 
-pub struct PlayerPlugin;
-
-impl Plugin for PlayerPlugin {
-	fn build(&self, app: &mut App) {
-		app
-			.add_startup_system(setup.after(core_setup))
-			.add_system(player_movement)
-		;
-	}
-}
-
-fn setup (
-	mut commands : Commands,
+pub fn setup_player (
+	commands : &mut ChildBuilder,
 	tilesheet : Res<Tilesheet>,
 ) {
 	commands.spawn((
-		SpriteSheetBundle {
-			texture_atlas: tilesheet.0.clone(),
-			sprite: TextureAtlasSprite::new(1),
-			transform: Transform::from_scale(Vec3::splat(0.5)),
-			..default()
-		},
 		Player,
 		Movement {
 			move_speed: 500.,
@@ -37,7 +21,12 @@ fn setup (
 			turn_decay: 0.9,
 			..default()
 		},
+		SpatialBundle {
+			transform: Transform::from_xyz(0., 0., 1.),
+			..default()
+		},
 	)).with_children(|commands| {
+		// Thruster
 		commands.spawn((
 			SpriteSheetBundle {
 				texture_atlas: tilesheet.0.clone(),
@@ -47,16 +36,26 @@ fn setup (
 					..default()
 				},
 				visibility: Visibility::Hidden,
-				transform: Transform::from_scale(Vec3::new(0.4, 0.5, 1.))
-					.with_translation(Vec3::new(0., -50., 0.)),
+				transform: Transform::from_scale(Vec3::new(0.2, 0.25, 1.))
+					.with_translation(Vec3::new(0., -25., 0.)),
 				..default()
 			},
 			PlayerThruster,
 		));
+		
+		// Ship
+		commands.spawn((
+			SpriteSheetBundle {
+				texture_atlas: tilesheet.0.clone(),
+				sprite: TextureAtlasSprite::new(1),
+				transform: Transform::from_scale(Vec3::new(0.5, 0.5, 1.)),
+				..default()
+			},
+		));
 	});
 }
 
-fn player_movement(
+pub fn player_movement(
 	mut query: Query<&mut Movement, With<Player>>,
 	mut thruster_query : Query<&mut Visibility, With<PlayerThruster>>,
 	input: Res<Input<KeyCode>>,

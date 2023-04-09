@@ -10,14 +10,7 @@ pub struct Movement {
 	pub turn_decay  : f32,
 }
 
-pub struct MovementPlugin;
-impl Plugin for MovementPlugin {
-	fn build(&self, app: &mut App) {
-		app.add_system(movement);
-	}
-}
-
-fn movement (
+pub fn movement (
 	mut query : Query<(&mut Movement, &mut Transform)>,
 	time : Res<Time>,
 ) {

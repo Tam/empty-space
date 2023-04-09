@@ -1,16 +1,24 @@
 mod gfx;
 mod player;
 mod camera;
-mod movement;
+mod cmp;
+mod scn;
 
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CompositeAlphaMode, PresentMode};
 use crate::camera::CameraPlugin;
-use crate::gfx::{GfxPlugin, Parallax, Spin};
-use crate::movement::MovementPlugin;
-use crate::player::PlayerPlugin;
-pub use movement::Movement;
+use crate::cmp::CmpPlugin;
+use crate::gfx::GfxPlugin;
+use crate::scn::ScnPlugin;
+
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Hash, States)]
+pub enum AppState {
+	Menu,
+	#[default]
+	Game,
+	Map,   // Nodal galaxy map
+}
 
 #[derive(Resource, Default)]
 pub struct Tilesheet (Handle<TextureAtlas>);
@@ -19,6 +27,7 @@ fn main() {
 	let mut app = App::new();
 	
 	app
+		.add_state::<AppState>()
 		.init_resource::<Tilesheet>()
 		.insert_resource(ClearColor(Color::NONE))
 		.add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -41,11 +50,14 @@ fn main() {
 			..default()
 		}))
 		.add_plugin(GfxPlugin)
+		.add_plugin(CmpPlugin)
+		.add_plugin(ScnPlugin)
 		.add_plugin(CameraPlugin)
-		.add_plugin(MovementPlugin)
-		.add_plugin(PlayerPlugin)
 		.add_startup_system(core_setup)
 	;
+	
+	#[cfg(feature = "debug")]
+	app.add_system(debug_input);
 	
 	#[cfg(not(target_arch = "wasm32"))]
 	app.add_system(window_move);
@@ -54,7 +66,6 @@ fn main() {
 }
 
 pub fn core_setup(
-	mut commands : Commands,
 	assets_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 	mut tilesheet: ResMut<Tilesheet>,
@@ -71,52 +82,14 @@ pub fn core_setup(
 	);
 	let texture_atlas_handle = texture_atlases.add(texture_atlas);
 	tilesheet.0 = texture_atlas_handle.clone();
-	
-	// TODO: completely tinted, sharpened (?), sprite shader
-	commands.spawn((
-		SpriteSheetBundle {
-			texture_atlas: tilesheet.0.clone(),
-			sprite: TextureAtlasSprite {
-				index: 23,
-				color: Color::hex("#232427").unwrap(),
-				..default()
-			},
-			transform: Transform::from_scale(Vec3::splat(10.)),
-			..default()
-		},
-		Parallax(-2),
-		Spin(2.),
-	));
-	
-	// TODO: Add sprite blur
-	commands.spawn((
-		SpriteSheetBundle {
-			texture_atlas: tilesheet.0.clone(),
-			sprite: TextureAtlasSprite {
-				index: 25,
-				color: Color::hex("#74748c").unwrap().with_a(0.5),
-				..default()
-			},
-			transform: Transform::from_scale(Vec3::splat(2.))
-				.with_translation(Vec3::new(0., 0., 2.)),
-			..default()
-		},
-		Parallax(2),
-	));
-	commands.spawn((
-		SpriteSheetBundle {
-			texture_atlas: tilesheet.0.clone(),
-			sprite: TextureAtlasSprite {
-				index: 26,
-				color: Color::hex("#74748c").unwrap().with_a(0.5),
-				..default()
-			},
-			transform: Transform::from_scale(Vec3::splat(1.))
-				.with_translation(Vec3::new(100., 100., 2.)),
-			..default()
-		},
-		Parallax(1),
-	));
+}
+
+#[cfg(feature = "debug")]
+fn debug_input (
+	input: Res<Input<KeyCode>>,
+	mut next_state: ResMut<NextState<AppState>>,
+) {
+	if input.just_pressed(KeyCode::G) { next_state.set(AppState::Game) }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
