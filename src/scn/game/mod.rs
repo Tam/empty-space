@@ -6,6 +6,7 @@ mod player;
 mod camera;
 mod world;
 mod radar;
+mod shit_ai;
 
 #[derive(Component)]
 struct GameSceneRoot;
@@ -30,6 +31,7 @@ impl Plugin for GameScenePlugin {
 			).in_set(OnUpdate(AppState::Game)).in_set(OnUpdate(GameState::Game)))
 			.add_systems((
 				camera::follow_player,
+				shit_ai::shit_ai,
 			).in_set(OnUpdate(AppState::Game)))
 		;
 		

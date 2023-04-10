@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use crate::cmp::{Parallax, Spin, Tracker, TrackerType};
+use crate::cmp::{Movement, Parallax, Spin, Tracker, TrackerType};
+use crate::scn::game::shit_ai::ShitAi;
 
 pub fn setup (
 	commands : &mut ChildBuilder,
@@ -75,5 +76,14 @@ pub fn setup (
 			..default()
 		},
 		Tracker(TrackerType::Enemy),
+		Movement {
+			move_speed: 250.,
+			turn_speed: 360f32.to_radians(),
+			move_decay: 1.,
+			turn_decay: 0.9,
+			move_factor: 1.,
+			..default()
+		},
+		ShitAi::default(),
 	));
 }
