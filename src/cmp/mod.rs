@@ -5,11 +5,13 @@ pub use movement::Movement;
 pub use parallax::Parallax;
 pub use spin::Spin;
 pub use tracker::{Tracker, TrackerType};
+pub use interactable::Interactable;
 
 mod movement;
 mod parallax;
 mod spin;
 mod tracker;
+mod interactable;
 
 pub struct CmpPlugin;
 impl Plugin for CmpPlugin {

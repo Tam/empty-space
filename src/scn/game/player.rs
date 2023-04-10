@@ -15,7 +15,7 @@ pub fn setup(
 		Player,
 		Movement {
 			move_speed: 500.,
-			turn_speed: 360f32.to_radians(),
+			turn_speed: 180f32.to_radians(),
 			move_decay: 0.9,
 			turn_decay: 0.9,
 			..default()
@@ -65,12 +65,14 @@ pub fn movement(
 	let mut movement = query.single_mut();
 	
 	// Yaw
-	if input.pressed(KeyCode::A) { movement.turn_factor =  1.; }
-	if input.pressed(KeyCode::D) { movement.turn_factor = -1.; }
+	if input.pressed(KeyCode::A) { movement.turn_factor += 0.1; }
+	if input.pressed(KeyCode::D) { movement.turn_factor -= 0.1; }
+	movement.turn_factor = movement.turn_factor.clamp(-1., 1.);
 	
 	// Thrust
 	if input.pressed(KeyCode::W) {
-		movement.move_factor =  1.;
+		movement.move_factor += 0.1;
+		movement.move_factor = movement.move_factor.clamp(0., 1.);
 		*thruster_query.single_mut() = Visibility::Visible;
 	} else {
 		*thruster_query.single_mut() = Visibility::Hidden;

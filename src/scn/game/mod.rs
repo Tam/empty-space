@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use crate::{AppState, Tilesheet};
+use crate::scn::game::interact::InteractPlugin;
 use crate::scn::game::radar::RadarPlugin;
 
 mod player;
@@ -7,6 +8,7 @@ mod camera;
 mod world;
 mod radar;
 mod shit_ai;
+mod interact;
 
 #[derive(Component)]
 struct GameSceneRoot;
@@ -24,6 +26,7 @@ impl Plugin for GameScenePlugin {
 		app
 			.add_state::<GameState>()
 			.add_plugin(RadarPlugin)
+			.add_plugin(InteractPlugin)
 			.add_system(setup.in_schedule(OnEnter(AppState::Game)))
 			.add_system(teardown.in_schedule(OnExit(AppState::Game)))
 			.add_systems((

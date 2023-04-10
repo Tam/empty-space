@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::cmp::{Movement, Parallax, Spin, Tracker, TrackerType};
+use crate::cmp::{Interactable, Movement, Parallax, Spin, Tracker, TrackerType};
 use crate::scn::game::shit_ai::ShitAi;
 
 pub fn setup (
@@ -64,6 +64,9 @@ pub fn setup (
 			..default()
 		},
 		Tracker(TrackerType::Resource),
+		Interactable {
+			label_offset: Vec2::new(-75., 55.),
+		},
 	));
 	commands.spawn((
 		SpriteSheetBundle {

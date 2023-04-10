@@ -21,6 +21,12 @@ pub enum AppState {
 #[derive(Resource, Default)]
 pub struct Tilesheet (Handle<TextureAtlas>);
 
+#[derive(Resource, Default)]
+pub struct UIFont {
+	light: Handle<Font>,
+	bold: Handle<Font>,
+}
+
 #[derive(Component)]
 pub struct MainCamera;
 
@@ -30,6 +36,7 @@ fn main() {
 	app
 		.add_state::<AppState>()
 		.init_resource::<Tilesheet>()
+		.init_resource::<UIFont>()
 		.insert_resource(ClearColor(Color::NONE))
 		.add_plugins(DefaultPlugins.set(WindowPlugin {
 			primary_window: Some(Window {
@@ -70,6 +77,7 @@ pub fn core_setup(
 	assets_server: Res<AssetServer>,
 	mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 	mut tilesheet: ResMut<Tilesheet>,
+	mut ui_font: ResMut<UIFont>,
 ) {
 	commands.spawn((
 		Camera2dBundle::default(),
@@ -88,6 +96,10 @@ pub fn core_setup(
 	);
 	let texture_atlas_handle = texture_atlases.add(texture_atlas);
 	tilesheet.0 = texture_atlas_handle.clone();
+	
+	// Load font
+	ui_font.light = assets_server.load("fonts/SpaceGrotesk-Light.ttf");
+	ui_font.bold  = assets_server.load("fonts/SpaceGrotesk-Bold.ttf");
 }
 
 #[cfg(feature = "debug")]
