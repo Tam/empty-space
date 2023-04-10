@@ -51,6 +51,7 @@ pub fn setup (
 		Parallax(1),
 	));
 	
+	// Entities
 	commands.spawn((
 		SpriteSheetBundle {
 			texture_atlas: tilesheet.clone(),
@@ -62,5 +63,17 @@ pub fn setup (
 			..default()
 		},
 		Tracker(TrackerType::Resource),
+	));
+	commands.spawn((
+		SpriteSheetBundle {
+			texture_atlas: tilesheet.clone(),
+			sprite: TextureAtlasSprite {
+				index: 24,
+				..default()
+			},
+			transform: Transform::from_xyz(600., -230., 0.),
+			..default()
+		},
+		Tracker(TrackerType::Enemy),
 	));
 }

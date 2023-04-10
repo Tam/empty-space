@@ -1,6 +1,7 @@
 mod gfx;
 mod cmp;
 mod scn;
+mod utl;
 
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;

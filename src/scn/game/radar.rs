@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::*;
 use bevy::render::camera::RenderTarget;
@@ -10,6 +11,7 @@ use crate::cmp::{Tracker, TrackerType};
 use crate::gfx::RadarMaterial;
 use crate::scn::game::GameState;
 use crate::scn::game::player::Player;
+use crate::utl::math;
 
 #[derive(Component)]
 struct RadarRoot;
@@ -139,25 +141,33 @@ fn show_tracker_icons (
 	mut commands : Commands,
 	radar_query: Query<Entity, (With<RadarRoot>, Without<Player>)>,
 	tracker_query: Query<(Entity, &Transform, &Tracker), (Without<Player>, Without<TrackerIcon>)>,
-	mut icon_query: Query<(&TrackerIcon, &mut Transform), Without<Player>>,
+	mut icon_query: Query<(&TrackerIcon, &mut Transform, &mut TextureAtlasSprite), Without<Player>>,
 	player_query: Query<&Transform, With<Player>>,
 	tilesheet : Res<Tilesheet>,
+	time : Res<Time>,
 ) {
 	let player_t = player_query.single();
 	let radar = radar_query.single();
 	let radar_render_layer = RenderLayers::layer(1);
 	let mut existing_icons : HashMap<_, _> = icon_query
 		.iter_mut()
-		.map(|(i, t)| (i.0, t))
+		.map(|(i, t, s)| (i.0, (t, s)))
 		.collect();
 	
 	for (entity, transform, tracker) in &tracker_query {
 		let id = entity.index();
 		let t = ((transform.translation - player_t.translation) * 0.3).truncate().extend(1.);
 		
+		// FIXME: fade is off from shader sweep
+		let st = (t / 720.).truncate();
+		let mut a = f32::atan2(st.y, st.x);
+		a = (a + PI) / (2. * PI);
+		a = 1. - math::f_mod(time.elapsed_seconds_wrapped() * 0.5 - a, 1.);
+		
 		if existing_icons.contains_key(&id) {
-			let icon_t = existing_icons.get_mut(&id).unwrap();
+			let (icon_t, icon_s) = existing_icons.get_mut(&id).unwrap();
 			icon_t.translation = t;
+			icon_s.color.set_a(a);
 		} else {
 			let tint = match tracker.0 {
 				TrackerType::Resource => Color::BISQUE,
@@ -170,7 +180,7 @@ fn show_tracker_icons (
 					texture_atlas: tilesheet.0.clone(),
 					sprite: TextureAtlasSprite {
 						index: 28,
-						color: tint,
+						color: tint.with_a(a),
 						..default()
 					},
 					transform: Transform::from_xyz(t.x, t.y, 1.),
