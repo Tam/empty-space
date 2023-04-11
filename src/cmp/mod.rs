@@ -5,7 +5,7 @@ pub use movement::Movement;
 pub use parallax::Parallax;
 pub use spin::Spin;
 pub use tracker::{Tracker, TrackerType};
-pub use interactable::Interactable;
+pub use interactable::*;
 
 mod movement;
 mod parallax;

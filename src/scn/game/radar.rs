@@ -111,6 +111,7 @@ fn setup (
 			},
 			image: image_handle.clone().into(),
 			visibility: Visibility::Hidden,
+			transform: Transform::from_xyz(0., 0., 1.),
 			..default()
 		},
 	));

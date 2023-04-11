@@ -31,6 +31,7 @@ impl Plugin for GameScenePlugin {
 			.add_system(teardown.in_schedule(OnExit(AppState::Game)))
 			.add_systems((
 				player::movement,
+				world::handle_test_interact,
 			).in_set(OnUpdate(AppState::Game)).in_set(OnUpdate(GameState::Game)))
 			.add_systems((
 				camera::follow_player,

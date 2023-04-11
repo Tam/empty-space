@@ -68,3 +68,4 @@ fn fragment (
 
 	return base_color + bg;
 }
+

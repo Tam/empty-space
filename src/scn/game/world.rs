@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::cmp::{Interactable, Movement, Parallax, Spin, Tracker, TrackerType};
+use crate::cmp::{ActiveInteractable, Interactable, InteractableState, Movement, Parallax, Spin, Tracker, TrackerType};
 use crate::scn::game::shit_ai::ShitAi;
 
 pub fn setup (
@@ -66,6 +66,7 @@ pub fn setup (
 		Tracker(TrackerType::Resource),
 		Interactable {
 			label_offset: Vec2::new(-75., 55.),
+			..default()
 		},
 	));
 	commands.spawn((
@@ -89,4 +90,14 @@ pub fn setup (
 		},
 		ShitAi::default(),
 	));
+}
+
+pub fn handle_test_interact (
+	query : Query<(Entity, &Interactable), With<ActiveInteractable>>,
+) {
+	let Some((e, i)) = query.get_single().ok() else { return };
+	
+	if i.state == InteractableState::Active {
+		println!("Interacted with entity: {}", e.index());
+	}
 }

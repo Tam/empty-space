@@ -15,7 +15,7 @@ pub fn setup(
 		Player,
 		Movement {
 			move_speed: 500.,
-			turn_speed: 180f32.to_radians(),
+			turn_speed: 270f32.to_radians(),
 			move_decay: 0.9,
 			turn_decay: 0.9,
 			..default()
