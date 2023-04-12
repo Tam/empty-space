@@ -27,10 +27,10 @@ impl Plugin for PostProcessPlugin {
 		// Get the render graph for the entire app
 		let mut graph = render_app.world.resource_mut::<RenderGraph>();
 		
-		// Get the render graph for 3D cameras/views
+		// Get the render graph for 2D cameras/views
 		let core_2d_graph = graph.get_sub_graph_mut(core_2d::graph::NAME).unwrap();
 		
-		// Register the post process node in the 3D render graph
+		// Register the post process node in the 2D render graph
 		core_2d_graph.add_node(PostProcessNode::NAME, node);
 		
 		// A slot edge tells the render graph which input/output value should be passed to the node.

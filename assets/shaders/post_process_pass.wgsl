@@ -1,9 +1,12 @@
 #import bevy_core_pipeline::fullscreen_vertex_shader
+#import empty_space::starfield
 
-@group(0) @binding(0)
+@group(0) @binding(2)
 var screen_texture : texture_2d<f32>;
-@group(0) @binding(1)
+@group(0) @binding(3)
 var texture_sampler : sampler;
+
+// Color
 
 const Epsilon : f32 = 1e-10;
 fn rgb_to_hsv (rgb : vec3<f32>) -> vec3<f32> {
@@ -32,6 +35,8 @@ fn tweak_saturation (in : vec4<f32>, amount : f32) -> vec4<f32> {
 	hsv.z *= amount;
 	return vec4<f32>(hsv_to_rgb(hsv.rgb), in.a);
 }
+
+// Frag
 
 @fragment
 fn fragment (
@@ -66,6 +71,11 @@ fn fragment (
 		return bg;
 	}
 
-	return base_color + bg;
+	if (base_color.a < 1.) {
+		// TODO: offset starfield by camera pos
+		return max(max(bg, starfield(in.uv, vec2(0.))), base_color);
+	}
+
+	return base_color;
 }
 

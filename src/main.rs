@@ -37,6 +37,7 @@ fn main() {
 		.add_state::<AppState>()
 		.init_resource::<Tilesheet>()
 		.init_resource::<UIFont>()
+		.insert_resource(Msaa::default())
 		.insert_resource(ClearColor(Color::NONE))
 		.add_plugins(DefaultPlugins.set(WindowPlugin {
 			primary_window: Some(Window {

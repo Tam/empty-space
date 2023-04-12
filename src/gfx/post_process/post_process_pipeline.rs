@@ -1,8 +1,11 @@
 use bevy::core_pipeline::fullscreen_vertex_shader::fullscreen_shader_vertex_state;
 use bevy::prelude::{AssetServer, FromWorld, Resource, World};
-use bevy::render::render_resource::{BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, CachedRenderPipelineId, ColorTargetState, ColorWrites, FragmentState, MultisampleState, PipelineCache, PrimitiveState, RenderPipelineDescriptor, Sampler, SamplerBindingType, SamplerDescriptor, ShaderStages, TextureFormat, TextureSampleType, TextureViewDimension};
+use bevy::render::globals::GlobalsUniform;
+use bevy::render::render_resource::{BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, BufferBindingType, CachedRenderPipelineId, ColorTargetState, ColorWrites, FragmentState, MultisampleState, PipelineCache, PrimitiveState, RenderPipelineDescriptor, Sampler, SamplerBindingType, SamplerDescriptor, ShaderStages, TextureFormat, TextureSampleType, TextureViewDimension};
 use bevy::render::renderer::RenderDevice;
 use bevy::render::texture::BevyDefault;
+use bevy::render::view::ViewUniform;
+use bevy::render::render_resource::ShaderType;
 
 #[derive(Resource)]
 pub struct PostProcessPipeline {
@@ -19,9 +22,33 @@ impl FromWorld for PostProcessPipeline {
 		let layout = render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
 			label: Some("post_process_bind_group_layout"),
 			entries: &[
-				// The screen texture
+				// View
 				BindGroupLayoutEntry {
 					binding: 0,
+					visibility: ShaderStages::FRAGMENT,
+					ty: BindingType::Buffer {
+						ty: BufferBindingType::Uniform,
+						has_dynamic_offset: true,
+						min_binding_size: Some(ViewUniform::min_size()),
+					},
+					count: None,
+				},
+				
+				// Globals
+				BindGroupLayoutEntry {
+					binding: 1,
+					visibility: ShaderStages::FRAGMENT,
+					ty: BindingType::Buffer {
+						ty: BufferBindingType::Uniform,
+						has_dynamic_offset: false,
+						min_binding_size: Some(GlobalsUniform::min_size()),
+					},
+					count: None,
+				},
+				
+				// The screen texture
+				BindGroupLayoutEntry {
+					binding: 2,
 					visibility: ShaderStages::FRAGMENT,
 					ty: BindingType::Texture {
 						sample_type: TextureSampleType::Float { filterable: true },
@@ -33,7 +60,7 @@ impl FromWorld for PostProcessPipeline {
 				
 				// The sampler that will be used to sample the screen
 				BindGroupLayoutEntry {
-					binding: 1,
+					binding: 3,
 					visibility: ShaderStages::FRAGMENT,
 					ty: BindingType::Sampler(SamplerBindingType::Filtering),
 					count: None,

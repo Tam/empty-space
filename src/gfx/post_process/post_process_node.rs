@@ -1,20 +1,22 @@
+use bevy::ecs::system::lifetimeless::Read;
 use bevy::prelude::{QueryState, With, World};
+use bevy::render::globals::GlobalsBuffer;
 use bevy::render::render_graph::{Node, NodeRunError, RenderGraphContext, SlotInfo, SlotType};
 use bevy::render::render_resource::{BindGroupDescriptor, BindGroupEntry, BindingResource, Operations, PipelineCache, RenderPassColorAttachment, RenderPassDescriptor};
 use bevy::render::renderer::{RenderContext};
-use bevy::render::view::{ExtractedView, ViewTarget};
+use bevy::render::view::{ExtractedView, ViewTarget, ViewUniformOffset, ViewUniforms};
 use crate::gfx::post_process::post_process_pipeline::PostProcessPipeline;
 
 /// The post process node used for the render graph
 pub struct PostProcessNode {
 	// The node needs a query to gather data from the ECS in order to do its rendering,
 	// but it's not a normal system so wee need to define it manually.
-	query : QueryState<&'static ViewTarget, With<ExtractedView>>,
+	query : QueryState<(&'static ViewTarget, Read<ViewUniformOffset>), With<ExtractedView>>,
 }
 
 impl PostProcessNode {
 	pub const IN_VIEW : &str = "view";
-	pub const NAME : &str = "post_process";
+	pub const NAME : &str = "empty_space::post_process";
 	
 	pub fn new (world : &mut World) -> Self {
 		Self {
@@ -54,9 +56,17 @@ impl Node for PostProcessNode {
 		// Get the entity of the view for the render graph where this node is running
 		let view_entity = graph.get_input_entity(PostProcessNode::IN_VIEW)?;
 		
+		let view_uniforms = world.resource::<ViewUniforms>();
+		let globals_buffer = world.resource::<GlobalsBuffer>();
+		
+		let (Some(view_binding), Some(globals)) = (
+			view_uniforms.uniforms.binding(),
+			globals_buffer.buffer.binding(),
+		) else { return Ok(()); };
+		
 		// We get the data we need from the world based on the view entity passed to the node.
 		// The data is the query that was defined earlier in the PostProcessNode
-		let Ok(view_target) = self.query.get_manual(world, view_entity) else {
+		let Ok((view_target, view_uniform)) = self.query.get_manual(world, view_entity) else {
 			return Ok(());
 		};
 		
@@ -87,17 +97,25 @@ impl Node for PostProcessNode {
 		let bind_group = render_context
 			.render_device()
 			.create_bind_group(&BindGroupDescriptor {
-				label: Some("post_process_bind_group"),
+				label: Some("empty_space::post_process_bind_group"),
 				layout: &post_process_pipeline.layout,
 				// It's important for this to match the BindGroupLayout defined in PostProcessPipeline
 				entries: &[
 					BindGroupEntry {
 						binding: 0,
+						resource: view_binding.clone(),
+					},
+					BindGroupEntry {
+						binding: 1,
+						resource: globals.clone(),
+					},
+					BindGroupEntry {
+						binding: 2,
 						// Make sure to use the source view
 						resource: BindingResource::TextureView(post_process.source),
 					},
 					BindGroupEntry {
-						binding: 1,
+						binding: 3,
 						// Use the sampler created for the pipeline
 						resource: BindingResource::Sampler(&post_process_pipeline.sampler),
 					},
@@ -106,7 +124,7 @@ impl Node for PostProcessNode {
 		
 		// Begin the render pass
 		let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {
-			label: Some("post_process_pass"),
+			label: Some("empty_space::post_process_pass"),
 			color_attachments: &[Some(RenderPassColorAttachment {
 				// We need to specify the post process destination view here
 				// to make sure we write to the appropriate texture
@@ -120,7 +138,7 @@ impl Node for PostProcessNode {
 		// This is mostly just WGPU boilerplate for drawing a fullscreen triangle,
 		// using the pipeline / bind_group created above
 		render_pass.set_render_pipeline(pipeline);
-		render_pass.set_bind_group(0, &bind_group, &[]);
+		render_pass.set_bind_group(0, &bind_group, &[view_uniform.offset]);
 		render_pass.draw(0..3, 0..1);
 		
 		Ok(())
